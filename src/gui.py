@@ -25,8 +25,9 @@ from stego_core import (
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 OUTPUT_DIR = PROJECT_ROOT / "assets" / "output"
-IMAGE_FILTER = "Lossless Images (*.png *.bmp)"
+IMAGE_FILTER = "Images (*.png *.jpg *.jpeg *.bmp *.gif)"
 SECRET_FILTER = "Supported files (*.txt *.pdf *.doc *.docx *.png *.jpg *.jpeg)"
+LABEL_WIDTH = 100  # fixed width so all file-picker labels align
 
 
 def human_size(size: int) -> str:
@@ -49,9 +50,14 @@ class FilePicker(QWidget):
         button.setObjectName("secondaryButton")
         button.setMinimumHeight(38)
         button.clicked.connect(self.choose_file)
+
         layout = QHBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
-        layout.addWidget(QLabel(label))
+
+        label_widget = QLabel(label)
+        label_widget.setFixedWidth(LABEL_WIDTH)
+        layout.addWidget(label_widget)
+
         layout.addWidget(self.path_edit, 1)
         layout.addWidget(button)
 
@@ -96,8 +102,8 @@ class SteganographyWindow(QMainWindow):
             QTabBar::tab { background: transparent; color: #86a0b8; border: 0; padding: 12px 22px; margin-right: 4px; font-weight: 600; }
             QTabBar::tab:selected { color: #f7fbff; background: #15304b; border-top-left-radius: 8px; border-top-right-radius: 8px; }
             QTabBar::tab:hover:!selected { color: #dceaf7; }
-            QGroupBox { background: #0f2135; color: #eaf3fb; font-size: 13px; font-weight: 700; border: 1px solid #23435f; border-radius: 10px; margin-top: 14px; padding: 17px 14px 13px 14px; }
-            QGroupBox::title { subcontrol-origin: margin; left: 13px; padding: 0 6px; }
+            QGroupBox { background: #0f2135; color: #eaf3fb; font-size: 13px; font-weight: 700; border: 1px solid #23435f; border-radius: 10px; margin-top: 16px; padding: 20px 14px 13px 14px; }
+            QGroupBox::title { subcontrol-origin: margin; subcontrol-position: top left; left: 14px; top: 2px; padding: 0 4px; }
             QLabel { color: #c8d8e7; }
             QLineEdit { background: #081421; color: #f4f8fc; border: 1px solid #2d4d68; border-radius: 7px; padding: 0 10px; selection-background-color: #1a6d94; }
             QLineEdit:focus { border: 1px solid #32c7b3; }
@@ -171,23 +177,28 @@ class SteganographyWindow(QMainWindow):
         layout.setContentsMargins(14, 12, 14, 14)
         layout.setSpacing(10)
         layout.addWidget(self._page_intro("WORKFLOW 01", "Protect a file inside an image", "Choose a PNG cover image and a supported secret file. The capacity checker keeps your payload safe."))
+
         files = QGroupBox("1. Choose files")
         form = QVBoxLayout(files)
+        form.setSpacing(10)
         self.cover_picker = FilePicker("Cover image:", IMAGE_FILTER)
         self.secret_picker = FilePicker("Secret file:", SECRET_FILTER)
-        self.output_picker = FilePicker("Stego image:", "", save=True)
+        self.output_picker = FilePicker("Save as:", "", save=True)
         self.output_picker.path_edit.setText(str(OUTPUT_DIR / "stego.png"))
         self.cover_picker.path_edit.editingFinished.connect(self.update_capacity)
         self.secret_picker.path_edit.editingFinished.connect(self.update_capacity)
         for picker in (self.cover_picker, self.secret_picker, self.output_picker):
             form.addWidget(picker)
         layout.addWidget(files)
+
         capacity = QGroupBox("2. Capacity check")
         status = QFormLayout(capacity)
+        status.setContentsMargins(0, 6, 0, 0)
         self.capacity_label = QLabel("Choose a cover image and secret file.")
         self.capacity_label.setWordWrap(True)
         status.addRow("Available capacity:", self.capacity_label)
         layout.addWidget(capacity)
+
         button = QPushButton("Hide file and create stego image")
         button.setMinimumHeight(42)
         button.clicked.connect(self.hide_file)
@@ -208,9 +219,12 @@ class SteganographyWindow(QMainWindow):
         self.extract_dir = QLineEdit(str(OUTPUT_DIR / "extracted"))
         form.addWidget(self.stego_picker)
         row = QHBoxLayout()
-        row.addWidget(QLabel("Save extracted file to:"))
+        row_label = QLabel("Save to:")
+        row_label.setFixedWidth(LABEL_WIDTH)
+        row.addWidget(row_label)
         row.addWidget(self.extract_dir, 1)
         browse = QPushButton("Browse")
+        browse.setObjectName("secondaryButton")
         browse.clicked.connect(self.choose_extract_dir)
         row.addWidget(browse)
         form.addLayout(row)
