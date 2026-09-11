@@ -12,30 +12,16 @@ from stego_core import (
 )
 
 
-def save_histogram_comparison(
-    cover_path,
-    stego_path,
-    output_path
-):
+def save_histogram_comparison(cover_path, stego_path, output_path):
     cover_hist = calculate_histogram(cover_path)
     stego_hist = calculate_histogram(stego_path)
 
     x = range(256)
     channels = ("Red", "Green", "Blue")
 
-    fig, axes = plt.subplots(
-        3,
-        1,
-        figsize=(10, 10),
-        sharex=True
-    )
+    fig, axes = plt.subplots(3, 1, figsize=(10, 10), sharex=True)
 
-    for ax, name, cover_values, stego_values in zip(
-        axes,
-        channels,
-        cover_hist,
-        stego_hist
-    ):
+    for ax, name, cover_values, stego_values in zip(axes, channels, cover_hist, stego_hist):
         ax.plot(x, cover_values, label="Cover")
         ax.plot(x, stego_values, label="Stego", alpha=0.75)
         ax.set_title(f"{name} Channel Histogram")
@@ -75,23 +61,11 @@ def save_visual_comparison(cover_path, stego_path, output_path):
 
 
 def main():
-    parser = argparse.ArgumentParser(
-        description="Analyze cover and stego images"
-    )
-
+    parser = argparse.ArgumentParser(description="Analyze cover and stego images")
     parser.add_argument("cover")
     parser.add_argument("stego")
-
-    parser.add_argument(
-        "--hist-output",
-        default="assets/output/histogram_comparison.png"
-    )
-
-    parser.add_argument(
-        "--visual-output",
-        default="assets/output/visual_comparison.png"
-    )
-
+    parser.add_argument("--hist-output", default="assets/output/histogram_comparison.png")
+    parser.add_argument("--visual-output", default="assets/output/visual_comparison.png")
     args = parser.parse_args()
 
     mse = calculate_mse(args.cover, args.stego)

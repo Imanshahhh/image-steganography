@@ -25,7 +25,7 @@ from stego_core import (
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 OUTPUT_DIR = PROJECT_ROOT / "assets" / "output"
-IMAGE_FILTER = "Images (*.png *.jpg *.jpeg *.bmp *.gif)"
+IMAGE_FILTER = "Lossless Images (*.png *.bmp)"
 SECRET_FILTER = "Supported files (*.txt *.pdf *.doc *.docx *.png *.jpg *.jpeg)"
 
 
